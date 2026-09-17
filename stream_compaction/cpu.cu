@@ -19,7 +19,10 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
             timer().startCpuTimer();
-            // TODO
+            odata[0] = 0;
+            for (int i = 1; i < n; i++) {
+                odata[i] = odata[i-1] + idata[i-1];
+            }
             timer().endCpuTimer();
         }
 
@@ -30,9 +33,15 @@ namespace StreamCompaction {
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
             timer().startCpuTimer();
-            // TODO
+            int pushed = 0;
+            for (int i = 0; i < n; i++) {
+                if (idata[i] != 0) {
+                    odata[pushed] = idata[i];
+                    pushed++;
+                }
+            }
             timer().endCpuTimer();
-            return -1;
+            return pushed;
         }
 
         /**
@@ -41,10 +50,34 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
         int compactWithScan(int n, int *odata, const int *idata) {
+            int* bools = new int[n];
+            int* indices = new int[n];
+
             timer().startCpuTimer();
-            // TODO
+            // set up bools
+            for (int i = 0; i < n; i++) {
+                bools[i] = idata[i] != 0;
+            }
+
+            // can't call scan() here bc it would start the timer twice
+            // set up indices
+            indices[0] = 0;
+            for (int i = 1; i < n; i++) {
+                indices[i] = indices[i-1] + bools[i-1];
+            }
+
+            // actual work of scattering
+            for (int i = 0; i < n; i++) {
+                if (bools[i]) {
+                    odata[indices[i]] = idata[i];
+                }
+            }
+            int count = indices[n-1] + bools[n-1];
             timer().endCpuTimer();
-            return -1;
+
+            delete[] bools;
+            delete[] indices;
+            return count;
         }
     }
 }

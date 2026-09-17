@@ -13,13 +13,21 @@
 #include <stream_compaction/thrust.h>
 #include "testing_helpers.hpp"
 
-const int SIZE = 1 << 8; // feel free to change the size of array
-const int NPOT = SIZE - 3; // Non-Power-Of-Two
-int *a = new int[SIZE];
-int *b = new int[SIZE];
-int *c = new int[SIZE];
+int SIZE = 1 << 8; // feel free to change the size of array, or pass log2(size) as the first arg
+int NPOT; // Non-Power-Of-Two
+int *a;
+int *b;
+int *c;
 
 int main(int argc, char* argv[]) {
+    if (argc > 1) {
+        SIZE = 1 << atoi(argv[1]);
+    }
+    NPOT = SIZE - 3;
+    a = new int[SIZE];
+    b = new int[SIZE];
+    c = new int[SIZE];
+
     // Scan tests
 
     printf("\n");
